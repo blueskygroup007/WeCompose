@@ -3,39 +3,56 @@ package com.bluesky.wecompose
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.bluesky.wecompose.ui.BottomBarItem
+import com.bluesky.wecompose.ui.WeBottomBar
+import com.bluesky.wecompose.ui.WeBottomBar1
+import com.bluesky.wecompose.ui.WeBottomBar2
 import com.bluesky.wecompose.ui.theme.WeComposeTheme
-import com.bluesky.wecompose.ui.theme.primaryLight
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //enableEdgeToEdge()
         setContent {
             WeComposeTheme {
-                Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Bottom) {
-                    Column {
+                var selectedIndex by remember { mutableIntStateOf(0) }
 
-                        WeBottomBar(0)
+                // 定义底部导航栏项的列表
+                val bottomBarItems = listOf(BottomBarItem(
+                    "聊天", R.drawable.chat_outlined, R.drawable.chat_filled
+                ) { Text("聊天 页面") }, BottomBarItem(
+                    "通讯录", R.drawable.contact_outlined, R.drawable.contact_filled
+                ) { Text("通讯录 页面") }, BottomBarItem(
+                    "发现", R.drawable.discovery_outlined, R.drawable.discovery_filled
+                ) { Text("发现 页面") }, BottomBarItem(
+                    "我的", R.drawable.me_outlined, R.drawable.me_filled
+                ) { Text("我的 页面") })
+                Scaffold(bottomBar = {
+                    WeBottomBar2(bottomBarItems) { index ->
+                        // 在这里处理点击事件
+                        selectedIndex = index
+                    }
+                }) { innerPadding ->
+                    Column(
+                        modifier = Modifier
+                            .padding(innerPadding)
+                            .fillMaxSize()
+                    ) {
+                        // 屏幕的内容
+                        bottomBarItems[selectedIndex].screen()
                     }
                 }
             }
@@ -44,63 +61,3 @@ class MainActivity : ComponentActivity() {
 
 }
 
-@Composable
-private fun WeBottomBar(selected: Int) {
-    Row(Modifier.fillMaxWidth()) {
-        TabItem(
-            if (selected == 0) R.drawable.chat_filled else R.drawable.chat_outlined,
-            "聊天",
-            Modifier.weight(1f),
-            if (selected == 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.scrim
-        )
-        TabItem(
-            if (selected == 1) R.drawable.contact_filled else R.drawable.contact_outlined,
-            "通讯录", Modifier.weight(1f),
-            if (selected == 1) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.scrim
-        )
-        TabItem(
-            if (selected == 2) R.drawable.discovery_filled else R.drawable.discovery_outlined,
-            "发现", Modifier.weight(1f),
-            if (selected == 2) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.scrim
-        )
-        TabItem(
-            if (selected == 3) R.drawable.me_filled else R.drawable.me_outlined,
-            "我",
-            Modifier.weight(1f),
-            if (selected == 3) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.scrim
-        )
-
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreWeBottomBar() {
-    WeComposeTheme {
-        WeBottomBar(0)
-    }
-}
-
-@Composable
-fun TabItem(@DrawableRes iconId: Int, title: String, modifier: Modifier = Modifier, tint: Color) {
-    Column(
-        modifier = modifier.padding(vertical = 8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Icon(
-            painter = painterResource(id = iconId),
-            title,
-            Modifier.size(24.dp),
-            tint = tint
-        )
-        Text(text = title, fontSize = 11.sp, color = tint)
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreTabItem() {
-    WeComposeTheme {
-        TabItem(R.drawable.chat_outlined, "聊天", tint = MaterialTheme.colorScheme.primary)
-    }
-}
